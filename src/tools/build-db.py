@@ -8,6 +8,7 @@ import duckdb
 import tkinter as tk
 from tkinter import filedialog
 from pathlib import Path
+import pyarrow.parquet as pq
 
 OUTPUT_DB = Path("public/telemetry.db")
 
@@ -26,15 +27,24 @@ def select_folder() -> Path:
 
 def main():
     dataset_dir = select_folder()
+    parquet_files = []
 
-    parquet_files = [
-        str(file).replace("\\", "/")
-        for file in dataset_dir.rglob("*")
-        if file.is_file()
-    ]
+    for file in dataset_dir.rglob("*"):
+        if not file.is_file():
+            continue
+
+        try:
+            pq.read_schema(file)
+            parquet_files.append(str(file).replace("\\", "/"))
+        except Exception:
+            print(f"Skipping {file}")
 
     if not parquet_files:
         raise RuntimeError("No files found")
+
+    # for file in parquet_files:
+    #     print(f"Processing {file}...")
+    # return
 
     OUTPUT_DB.parent.mkdir(
         parents=True,
@@ -46,10 +56,6 @@ def main():
     file_list = ",".join(f"'{file}'" for file in parquet_files)
 
     print(f"Found {len(parquet_files)} files")
-
-    # for file in parquet_files:
-    #     print(f"Processing {file}...")
-    # return
 
     con.execute(f"""
         CREATE OR REPLACE TABLE events AS
