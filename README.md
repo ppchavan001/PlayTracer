@@ -45,20 +45,19 @@ npm run preview
 
 ## Dataset Setup
 
-Place the provided telemetry dataset inside the application's public data directory.
+- Requires python with packages installed: pandas, pyarrow, duckdb
+    ```
+    pip install pandas pyarrow duckdb
+    ```
+- Run the "src/tools/build-db.py" script to generate the telemetry database.
+    ```
+    python src/tools/build-db.py
+    ```
+- Verify generated dataset using "src/tools/verify_db.py"
+    ```
+    python src/tools/verify_db.py
+    ```
 
-```text
-public/
-│── February_10/
-│── February_11/
-│── February_12/
-│── February_13/
-│── February_14/
-└── minimaps/
-    ├── AmbroseValley_Minimap.png
-    ├── GrandRift_Minimap.png
-    └── Lockdown_Minimap.jpg
-```
 
 
 ## Usage
