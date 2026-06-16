@@ -23,6 +23,15 @@ import { loadMatchMap }
 import { MINIMAPS }
   from "@/data/minimaps";
 
+import MatchInfoPanel
+  from "@/components/MatchInfoPanel";
+
+import { MatchInfo }
+  from "@/types/matchInfo";
+
+import { loadMatchInfo }
+  from "@/data/loadMatchInfo";
+
 export default function Home()
 {
   const [info, setInfo] =
@@ -133,16 +142,33 @@ export default function Home()
 
     loadMap().catch(console.error);
   }, [filters.matchId]);
+
+
+  const [matchInfo, setMatchInfo] =
+    useState<MatchInfo | null>(null);
+
+  useEffect(() =>
+  {
+    if (!filters.matchId)
+    {
+      setMatchInfo(null);
+      return;
+    }
+
+    loadMatchInfo(filters.matchId)
+      .then(setMatchInfo)
+      .catch(console.error);
+  }, [filters.matchId]);
+
   return (
     <main
       style={{
         display: "grid",
         gridTemplateColumns:
-          "320px 1fr",
+          "320px 1fr 320px",
         height: "100vh",
         background: "#0b0d10",
         color: "#fff",
-        overflow: "hidden",
       }}
     >
       <aside
@@ -251,6 +277,18 @@ export default function Home()
           )}
         </div>
       </section>
-    </main>
+
+      <aside
+        style={{
+          padding: "1rem",
+          borderLeft:
+            "1px solid #1e232d",
+        }}
+      >
+        <MatchInfoPanel
+          info={matchInfo}
+        />
+      </aside>
+    </main >
   );
 }
