@@ -4,4 +4,8 @@ export interface MatchInfo
     mapId: string;
     players: number;
     bots: number;
+    humans: number;
+    duration: number;
+    events: number;
+
 }

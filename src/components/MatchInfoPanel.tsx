@@ -67,6 +67,21 @@ export default function MatchInfoPanel({
                     <strong>
                         {info.bots}
                     </strong>
+
+
+                    <span>Humans</span>
+                    <strong>
+                        {info.humans}
+                    </strong>
+
+                    <span>Duration</span>
+                    <strong>
+                        {info.duration}ms
+                    </strong>
+                    <span>Events</span>
+                    <strong>
+                        {info.events}
+                    </strong>
                 </div>
             )}
         </div>
