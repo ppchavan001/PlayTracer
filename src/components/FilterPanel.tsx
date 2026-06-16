@@ -5,7 +5,9 @@ interface Props
     filters: Filters;
     dates: string[];
     matches: string[];
-    onChange: (filters: Filters) => void;
+    onChange: (
+        filters: Filters
+    ) => void;
 }
 
 export default function FilterPanel({

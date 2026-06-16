@@ -9,35 +9,98 @@ import { DatasetInfo } from "@/types/dataset";
 import { Filters } from "@/types/filters";
 
 import { loadDatasetInfo } from "@/data/loadDatasetInfo";
+import
+  {
+    loadDates,
+    loadMatches,
+  } from "@/data/loadFilters";
 
 export default function Home()
 {
   const [info, setInfo] =
     useState<DatasetInfo | null>(null);
 
+  const [dates, setDates] =
+    useState<string[]>([]);
+
+  const [matches, setMatches] =
+    useState<string[]>([]);
+
   const [filters, setFilters] =
     useState<Filters>({
-      startDate: "10-02-2026",
-      endDate: "14-02-2026",
+      startDate: "",
+      endDate: "",
       matchId: "",
     });
 
   useEffect(() =>
   {
-    loadDatasetInfo()
-      .then(setInfo)
-      .catch(console.error);
+    async function initialize()
+    {
+      try
+      {
+        const [datasetInfo, availableDates] =
+          await Promise.all([
+            loadDatasetInfo(),
+            loadDates(),
+          ]);
+
+        setInfo(datasetInfo);
+        setDates(availableDates);
+
+        if (availableDates.length > 0)
+        {
+          setFilters({
+            startDate:
+              availableDates[0],
+            endDate:
+              availableDates[
+              availableDates.length - 1
+              ],
+            matchId: "",
+          });
+        }
+      } catch (error)
+      {
+        console.error(error);
+      }
+    }
+
+    initialize();
   }, []);
 
-  const availableDates = [
-    "10-02-2026",
-    "11-02-2026",
-    "12-02-2026",
-    "13-02-2026",
-    "14-02-2026",
-  ];
+  useEffect(() =>
+  {
+    async function loadMatchList()
+    {
+      if (
+        !filters.startDate ||
+        !filters.endDate
+      )
+      {
+        return;
+      }
 
-  const matches = [];
+      try
+      {
+        const availableMatches =
+          await loadMatches(
+            filters.startDate,
+            filters.endDate
+          );
+
+        setMatches(availableMatches);
+      } catch (error)
+      {
+        console.error(error);
+      }
+    }
+
+    loadMatchList();
+  }, [
+    filters.startDate,
+    filters.endDate,
+  ]);
 
   return (
     <main
@@ -46,6 +109,7 @@ export default function Home()
         gridTemplateColumns:
           "320px 1fr",
         height: "100vh",
+        overflow: "hidden",
       }}
     >
       <aside
@@ -55,13 +119,20 @@ export default function Home()
           padding: "1rem",
           borderRight:
             "1px solid #333",
+          overflow: "hidden",
         }}
       >
-        <h2>PlayTracer</h2>
+        <h2
+          style={{
+            marginTop: 0,
+          }}
+        >
+          PlayTracer
+        </h2>
 
         <FilterPanel
           filters={filters}
-          dates={availableDates}
+          dates={dates}
           matches={matches}
           onChange={setFilters}
         />
@@ -77,7 +148,12 @@ export default function Home()
         </div>
       </aside>
 
-      <section>
+      <section
+        style={{
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
         Minimap
       </section>
     </main>

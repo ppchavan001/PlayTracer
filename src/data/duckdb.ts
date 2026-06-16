@@ -1,35 +1,15 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
 
 let db: duckdb.AsyncDuckDB | null = null;
+let initialized = false;
 
-export async function getDb()
+async function getDb()
 {
     if (db)
     {
         return db;
     }
 
-    // const bundles: duckdb.DuckDBBundles = {
-    //     mvp: {
-    //         mainModule:
-    //             "/duckdb/duckdb-browser-mvp.wasm",
-    //         mainWorker:
-    //             "/duckdb/duckdb-browser-mvp.worker.js",
-    //     },
-    //     eh: {
-    //         mainModule:
-    //             "/duckdb/duckdb-browser-eh.wasm",
-    //         mainWorker:
-    //             "/duckdb/duckdb-browser-eh.worker.js",
-    //     },
-    // };
-
-    // const bundle =
-    //     await duckdb.selectBundle(bundles);
-
-    // const worker = new Worker(
-    //     bundle.mainWorker!
-    // );
 
     const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
@@ -53,4 +33,53 @@ export async function getDb()
     );
 
     return db;
+}
+
+let initializationPromise:
+    Promise<void> | null = null;
+
+async function initializeDb()
+{
+    if (initializationPromise)
+    {
+        return initializationPromise;
+    }
+
+    const db = await getDb();
+
+    initializationPromise = (async () =>
+    {
+        const response =
+            await fetch("/telemetry.db");
+
+        const buffer =
+            await response.arrayBuffer();
+
+        await db.registerFileBuffer(
+            "telemetry.db",
+            new Uint8Array(buffer)
+        );
+
+        const conn = await db.connect();
+
+        await conn.query(`
+      ATTACH 'telemetry.db'
+      AS telemetry
+    `);
+
+        await conn.close();
+    })();
+
+    return initializationPromise;
+}
+export async function getConnection()
+{
+    const db = await getDb();
+
+    if (!initialized)
+    {
+        await initializeDb();
+    }
+
+    return db.connect();
 }
