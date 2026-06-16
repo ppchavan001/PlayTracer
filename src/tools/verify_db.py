@@ -188,10 +188,25 @@ def main():
         SELECT
             match_id,
             user_id,
-            match_date
+            match_date,
+            max(ts) as last_event_ts
         FROM events
         where match_id = 'fbbc5d02-dd79-42fb-bba5-d768023891c8.nakama-0'
         GROUP BY match_id, match_date, user_id
+        """,
+    )
+
+    print_query(
+        "longest match by duration",
+        con,
+        """        
+        SELECT
+            match_id,
+            (MAX(ts) - MIN(ts)) AS duration_seconds
+        FROM events
+        GROUP BY match_id
+        ORDER BY duration_seconds DESC
+        LIMIT 10
         """,
     )
 
