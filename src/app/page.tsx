@@ -15,6 +15,14 @@ import
   loadMatches,
 } from "@/data/loadFilters";
 
+import Image from "next/image";
+
+import { loadMatchMap }
+  from "@/data/loadMatchMap";
+
+import { MINIMAPS }
+  from "@/data/minimaps";
+
 export default function Home()
 {
   const [info, setInfo] =
@@ -102,6 +110,29 @@ export default function Home()
     filters.endDate,
   ]);
 
+
+  const [selectedMap, setSelectedMap] =
+    useState<string | null>(null);
+
+  useEffect(() =>
+  {
+    async function loadMap()
+    {
+      if (!filters.matchId)
+      {
+        setSelectedMap(null);
+        return;
+      }
+
+      const map = await loadMatchMap(
+        filters.matchId
+      );
+
+      setSelectedMap(map);
+    }
+
+    loadMap().catch(console.error);
+  }, [filters.matchId]);
   return (
     <main
       style={{
@@ -156,9 +187,69 @@ export default function Home()
           position: "relative",
           overflow: "hidden",
           background: "#11151b",
+          padding: "1rem",
         }}
       >
-        Minimap
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 12,
+            border: "1px solid #1e232d",
+            background: "#151922",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          {!selectedMap && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+                opacity: 0.6,
+              }}
+            >
+              Select a match
+            </div>
+          )}
+
+          {selectedMap && (
+            <>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 16,
+                  left: 16,
+                  zIndex: 10,
+                  padding:
+                    "6px 12px",
+                  borderRadius: 999,
+                  background:
+                    "rgba(0,0,0,0.7)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {selectedMap}
+              </div>
+
+              <Image
+                src={
+                  MINIMAPS[selectedMap]
+                }
+                alt={selectedMap}
+                fill
+                priority
+                style={{
+                  objectFit:
+                    "contain",
+                }}
+              />
+            </>
+          )}
+        </div>
       </section>
     </main>
   );
