@@ -288,7 +288,7 @@ export default function Home()
             }
 
             return Math.min(
-              current +
+              current + 100 *
               playbackSpeed,
               timelineMax
             );
