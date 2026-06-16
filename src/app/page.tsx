@@ -10,10 +10,10 @@ import { Filters } from "@/types/filters";
 
 import { loadDatasetInfo } from "@/data/loadDatasetInfo";
 import
-  {
-    loadDates,
-    loadMatches,
-  } from "@/data/loadFilters";
+{
+  loadDates,
+  loadMatches,
+} from "@/data/loadFilters";
 
 export default function Home()
 {
@@ -109,6 +109,8 @@ export default function Home()
         gridTemplateColumns:
           "320px 1fr",
         height: "100vh",
+        background: "#0b0d10",
+        color: "#fff",
         overflow: "hidden",
       }}
     >
@@ -116,15 +118,16 @@ export default function Home()
         style={{
           display: "flex",
           flexDirection: "column",
+          gap: "1rem",
           padding: "1rem",
           borderRight:
-            "1px solid #333",
-          overflow: "hidden",
+            "1px solid #1e232d",
         }}
       >
         <h2
           style={{
-            marginTop: 0,
+            margin: 0,
+            fontSize: 24,
           }}
         >
           PlayTracer
@@ -152,6 +155,7 @@ export default function Home()
         style={{
           position: "relative",
           overflow: "hidden",
+          background: "#11151b",
         }}
       >
         Minimap
