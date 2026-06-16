@@ -160,6 +160,19 @@ export default function Home()
       .catch(console.error);
   }, [filters.matchId]);
 
+
+  const [visualizationMode, setVisualizationMode] =
+    useState("events");
+
+  const [isPlaying, setIsPlaying] =
+    useState(false);
+
+  const [timelinePosition, setTimelinePosition] =
+    useState(0);
+
+  const [timelineMax, setTimelineMax] =
+    useState(100);
+
   return (
     <main
       style={{
@@ -210,18 +223,21 @@ export default function Home()
 
       <section
         style={{
-          position: "relative",
-          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
           background: "#11151b",
           padding: "1rem",
+          gap: "1rem",
         }}
       >
+
+
+        {/* Minimap */}
         <div
           style={{
-            width: "100%",
-            height: "100%",
+            flex: 1,
             borderRadius: 12,
-            border: "1px solid #1e232d",
+            border: "1px solid #222",
             background: "#151922",
             overflow: "hidden",
             position: "relative",
@@ -230,10 +246,10 @@ export default function Home()
           {!selectedMap && (
             <div
               style={{
+                height: "100%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                height: "100%",
                 opacity: 0.6,
               }}
             >
@@ -248,17 +264,72 @@ export default function Home()
                   position: "absolute",
                   top: 16,
                   left: 16,
-                  zIndex: 10,
+                  zIndex: 5,
                   padding:
                     "6px 12px",
                   borderRadius: 999,
                   background:
-                    "rgba(0,0,0,0.7)",
+                    "rgba(30,35,45,0.8)",
                   fontSize: 12,
                   fontWeight: 600,
                 }}
               >
                 {selectedMap}
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  zIndex: 5,
+                }}
+              >
+                <select
+                  value={visualizationMode}
+                  onChange={(e) =>
+                    setVisualizationMode(
+                      e.target.value
+                    )
+                  }
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    border: "none",
+                    background:
+                      "rgba(30,35,45,0.8)",
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    appearance: "none",
+                    paddingRight: "28px",
+                  }}
+                >
+                  <option value="events">
+                    Events
+                  </option>
+
+                  <option
+                    value="heatmap"
+                    disabled
+                  >
+                    Heatmap
+                  </option>
+                </select>
+
+                <span
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    top: "50%",
+                    transform:
+                      "translateY(-50%)",
+                    pointerEvents: "none",
+                    fontSize: 10,
+                  }}
+                >
+                  ▼
+                </span>
               </div>
 
               <Image
@@ -275,6 +346,67 @@ export default function Home()
               />
             </>
           )}
+        </div>
+
+        {/* Playback Controls */}
+        <div
+          style={{
+            padding: "1rem",
+            borderRadius: 12,
+            border: "1px solid #222",
+            background: "#151922",
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+          }}
+        >
+          <button
+            onClick={() =>
+              setIsPlaying(
+                !isPlaying
+              )
+            }
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: "none",
+              background:
+                "#222834",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            {isPlaying ? "❚❚" : "▶"}
+          </button>
+
+          <input
+            type="range"
+            min={0}
+            max={timelineMax}
+            value={timelinePosition}
+            onChange={(e) =>
+              setTimelinePosition(
+                Number(
+                  e.target.value
+                )
+              )
+            }
+            style={{
+              flex: 1,
+            }}
+          />
+
+          <div
+            style={{
+              minWidth: 80,
+              textAlign: "right",
+              fontSize: 12,
+              opacity: 0.8,
+            }}
+          >
+            {timelinePosition}%
+          </div>
         </div>
       </section>
 
