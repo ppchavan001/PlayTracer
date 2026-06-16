@@ -31,6 +31,29 @@ import { MatchInfo }
 
 import { loadMatchInfo }
   from "@/data/loadMatchInfo";
+import { loadMatchEvents, MatchEvent } from "@/data/loadMatchEvents";
+import { worldToMinimap } from "@/data/mapCoordinates";
+
+
+
+function formatTime(
+  milliseconds: number
+)
+{
+  const seconds =
+    Math.floor(
+      milliseconds / 1000
+    );
+
+  const minutes =
+    Math.floor(seconds / 60);
+
+  return `${minutes}:${(
+    seconds % 60
+  )
+    .toString()
+    .padStart(2, "0")}`;
+}
 
 export default function Home()
 {
@@ -173,6 +196,116 @@ export default function Home()
   const [timelineMax, setTimelineMax] =
     useState(100);
 
+  const [events, setEvents] =
+    useState<MatchEvent[]>([]);
+
+  const [visibleEvents, setVisibleEvents] =
+    useState<MatchEvent[]>([]);
+
+
+  useEffect(() =>
+  {
+    async function loadPlayback()
+    {
+      setIsPlaying(false);
+      setVisibleEvents([]);
+      setEvents([]);
+
+      if (!filters.matchId)
+      {
+        return;
+      }
+
+      const matchEvents =
+        await loadMatchEvents(
+          filters.matchId
+        );
+
+      setEvents(matchEvents);
+
+      if (!matchEvents.length)
+      {
+        return;
+      }
+
+      const minTs =
+        matchEvents[0].ts;
+
+      const maxTs =
+        matchEvents[
+          matchEvents.length - 1
+        ].ts;
+
+      setTimelinePosition(0);
+      setTimelineMax(maxTs - minTs);
+    }
+
+    loadPlayback().catch(console.error);
+  }, [filters.matchId]);
+
+  useEffect(() =>
+  {
+    if (!events.length)
+    {
+      return;
+    }
+
+    const startTs = events[0].ts;
+
+    const currentTs =
+      startTs + timelinePosition;
+
+    setVisibleEvents(
+      events.filter(
+        (e) => e.ts <= currentTs
+      )
+    );
+  }, [timelinePosition, events]);
+
+  const [playbackSpeed, setPlaybackSpeed] =
+    useState(1);
+
+  useEffect(() =>
+  {
+    if (!isPlaying)
+    {
+      return;
+    }
+
+    const timer =
+      window.setInterval(() =>
+      {
+        setTimelinePosition(
+          (current) =>
+          {
+            if (
+              current >= timelineMax
+            )
+            {
+              setIsPlaying(false);
+
+              return timelineMax;
+            }
+
+            return Math.min(
+              current +
+              playbackSpeed,
+              timelineMax
+            );
+          }
+        );
+      }, 100);
+
+    return () =>
+      window.clearInterval(timer);
+  }, [
+    isPlaying,
+    timelineMax,
+    playbackSpeed,
+  ]);
+
+
+
   return (
     <main
       style={{
@@ -264,9 +397,8 @@ export default function Home()
                   position: "absolute",
                   top: 16,
                   left: 16,
-                  zIndex: 5,
-                  padding:
-                    "6px 12px",
+                  zIndex: 100,
+                  padding: "6px 12px",
                   borderRadius: 999,
                   background:
                     "rgba(30,35,45,0.8)",
@@ -276,12 +408,13 @@ export default function Home()
               >
                 {selectedMap}
               </div>
+
               <div
                 style={{
                   position: "absolute",
                   top: 16,
                   right: 16,
-                  zIndex: 5,
+                  zIndex: 100,
                 }}
               >
                 <select
@@ -300,9 +433,8 @@ export default function Home()
                     color: "#fff",
                     fontSize: 12,
                     fontWeight: 600,
-                    cursor: "pointer",
                     appearance: "none",
-                    paddingRight: "28px",
+                    paddingRight: 28,
                   }}
                 >
                   <option value="events">
@@ -332,18 +464,122 @@ export default function Home()
                 </span>
               </div>
 
-              <Image
-                src={
-                  MINIMAPS[selectedMap]
-                }
-                alt={selectedMap}
-                fill
-                priority
+              <div
                 style={{
-                  objectFit:
-                    "contain",
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    width: "90%",
+                    aspectRatio: "1",
+                    maxHeight: "90%",
+                  }}
+                >
+                  <Image
+                    src={
+                      MINIMAPS[selectedMap]
+                    }
+                    alt={selectedMap}
+                    fill
+                    priority
+                  />
+
+                  {visibleEvents.map(
+                    (event, index) =>
+                    {
+                      if (
+                        event.event ===
+                        "Position" ||
+                        event.event ===
+                        "BotPosition"
+                      )
+                      {
+                        return null;
+                      }
+
+                      const point =
+                        worldToMinimap(
+                          selectedMap,
+                          event.x,
+                          event.z
+                        );
+
+                      let color =
+                        "#ffffff";
+
+                      switch (
+                      event.event
+                      )
+                      {
+                        case "Loot":
+                          color =
+                            "#facc15";
+                          break;
+
+                        case "Kill":
+                        case "BotKill":
+                          color =
+                            "#22c55e";
+                          break;
+
+                        case "Killed":
+                        case "BotKilled":
+                          color =
+                            "#ef4444";
+                          break;
+
+                        case "KilledByStorm":
+                          color =
+                            "#3b82f6";
+                          break;
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          style={{
+                            position:
+                              "absolute",
+
+                            left: `${(point.x /
+                              1024) *
+                              100
+                              }%`,
+
+                            top: `${(point.y /
+                              1024) *
+                              100
+                              }%`,
+
+                            width: 10,
+                            height: 10,
+
+                            borderRadius:
+                              "50%",
+
+                            background:
+                              color,
+
+                            border:
+                              "1px solid rgba(255,255,255,0.5)",
+
+                            transform:
+                              "translate(-50%, -50%)",
+
+                            zIndex: 50,
+                          }}
+                        />
+                      );
+                    }
+                  )}
+                </div>
+              </div>
             </>
           )}
         </div>
@@ -380,6 +616,50 @@ export default function Home()
             {isPlaying ? "❚❚" : "▶"}
           </button>
 
+          <select
+            value={playbackSpeed}
+            onChange={(e) =>
+              setPlaybackSpeed(
+                Number(e.target.value)
+              )
+            }
+            style={{
+              padding: "6px 12px",
+              borderRadius: 999,
+              border: "none",
+              background:
+                "rgba(30,35,45,0.8)",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <option value={0.25}>
+              0.25x
+            </option>
+
+            <option value={0.5}>
+              0.5x
+            </option>
+
+            <option value={1}>
+              1x
+            </option>
+
+            <option value={2}>
+              2x
+            </option>
+
+            <option value={4}>
+              4x
+            </option>
+
+            <option value={8}>
+              8x
+            </option>
+          </select>
+
           <input
             type="range"
             min={0}
@@ -396,6 +676,13 @@ export default function Home()
               flex: 1,
             }}
           />
+          <div>
+            {formatTime(
+              timelinePosition
+            )}
+            {" / "}
+            {formatTime(timelineMax)}
+          </div>
 
           <div
             style={{
@@ -405,7 +692,14 @@ export default function Home()
               opacity: 0.8,
             }}
           >
-            {timelinePosition}%
+            {timelineMax > 0
+              ? Math.round(
+                (timelinePosition /
+                  timelineMax) *
+                100
+              )
+              : 0}
+            %
           </div>
         </div>
       </section>
