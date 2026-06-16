@@ -152,6 +152,49 @@ def main():
         """,
     )
 
+    print_query(
+        "Top 10 Matches",
+        con,
+        """
+        SELECT
+            match_id,
+            COUNT(*) AS row_count
+        FROM events
+        GROUP BY match_id
+        ORDER BY row_count DESC
+        LIMIT 10
+        """,
+    )
+
+    print_query(
+        "Top 10 Matches by player count",
+        con,
+        """        
+        SELECT
+            match_id,
+            COUNT(DISTINCT user_id) AS player_count,
+            match_date
+        FROM events
+        GROUP BY match_id, match_date
+        ORDER BY player_count DESC
+        LIMIT 10
+        """,
+    )
+
+    print_query(
+        "match_id = 'fbbc5d02-dd79-42fb-bba5-d768023891c8.nakama-0' players",
+        con,
+        """        
+        SELECT
+            match_id,
+            user_id,
+            match_date
+        FROM events
+        where match_id = 'fbbc5d02-dd79-42fb-bba5-d768023891c8.nakama-0'
+        GROUP BY match_id, match_date, user_id
+        """,
+    )
+
     con.close()
 
 
