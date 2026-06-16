@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import DatasetInfoPanel from "@/components/DatasetInfoPanel";
 import { DatasetInfo } from "@/types/dataset";
+import { loadDatasetInfo } from "@/data/loadDatasetInfo";
 
 export default function Home()
 {
@@ -12,21 +13,23 @@ export default function Home()
 
   useEffect(() =>
   {
-    async function loadInfo()
+    async function init()
     {
-      const response = await fetch(
-        "/api/dataset-info"
-      );
+      try
+      {
+        const result =
+          await loadDatasetInfo();
 
-      const data =
-        await response.json();
+        console.log(result);
 
-      console.log(data);
-
-      setInfo(data);
+        setInfo(result);
+      } catch (error)
+      {
+        console.error(error);
+      }
     }
 
-    loadInfo().catch(console.error);
+    init();
   }, []);
 
   return (
