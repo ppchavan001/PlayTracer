@@ -28,6 +28,28 @@ def main():
 
     print(f"\nTotal Rows: {total_rows:,}")
 
+    min_date, max_date = con.execute("""
+        SELECT
+            strftime(MIN(match_date), '%d-%m-%Y'),
+            strftime(MAX(match_date), '%d-%m-%Y')
+        FROM events
+    """).fetchone()
+
+    print(f"Date Range: {min_date} → {max_date}")
+
+    print_query(
+        "Dates",
+        con,
+        """
+        SELECT
+            strftime(match_date, '%d-%m-%Y'),
+            COUNT(*) AS rows
+        FROM events
+        GROUP BY match_date
+        ORDER BY match_date
+        """,
+    )
+
     print_query(
         "Maps, Event Count",
         con,
@@ -36,6 +58,19 @@ def main():
         FROM events
         GROUP BY map_id
         ORDER BY COUNT(*) DESC
+        """,
+    )
+
+    print_query(
+        "Matches Per Date",
+        con,
+        """
+        SELECT
+            strftime(match_date, '%d-%m-%Y'),
+            COUNT(DISTINCT match_id)
+        FROM events
+        GROUP BY match_date
+        ORDER BY match_date
         """,
     )
 
@@ -74,6 +109,7 @@ def main():
             COUNT(DISTINCT user_id)
         FROM events
         GROUP BY player_type
+        ORDER BY player_type
         """,
     )
 
@@ -94,7 +130,7 @@ def main():
         """
         SELECT
             MIN(cnt),
-            AVG(cnt),
+            ROUND(AVG(cnt), 2),
             MAX(cnt)
         FROM (
             SELECT
@@ -107,28 +143,14 @@ def main():
     )
 
     print_query(
-        "Top 10 Matches",
+        "Sample Row",
         con,
         """
-        SELECT
-            match_id,
-            COUNT(*) AS row_count
+        SELECT *
         FROM events
-        GROUP BY match_id
-        ORDER BY row_count DESC
-        LIMIT 10
+        LIMIT 1
         """,
     )
-
-    # print_query(
-    #     "Sample Rows",
-    #     con,
-    #     """
-    #     SELECT *
-    #     FROM events
-    #     LIMIT 10
-    #     """,
-    # )
 
     con.close()
 

@@ -1,13 +1,16 @@
-# Builds a DuckDB database from the telemetry parquet files.
-# The database is saved to public/telemetry.db and can be used by the API.
-# The script will prompt you to select the folder containing the parquet files.
-# Note: The parquet files must be in the format produced by the telemetry export tool.
-# Setup : pip install duckdb pandas pyarrow
+# Builds a DuckDB database from telemetry parquet files.
+# Output: public/telemetry.db
+#
+# Setup:
+# pip install duckdb pyarrow
 
+import re
 import duckdb
 import tkinter as tk
-from tkinter import filedialog
+
 from pathlib import Path
+from tkinter import filedialog
+
 import pyarrow.parquet as pq
 
 OUTPUT_DB = Path("public/telemetry.db")
@@ -25,9 +28,21 @@ def select_folder() -> Path:
     return Path(folder)
 
 
+def folder_to_date(folder_name: str) -> str:
+    match = re.match(r"([A-Za-z]+)_(\d+)", folder_name)
+
+    if not match:
+        raise ValueError(f"Invalid folder name: {folder_name}")
+
+    _, day = match.groups()
+
+    return f"2026-02-{int(day):02d}"
+
+
 def main():
     dataset_dir = select_folder()
-    parquet_files = []
+
+    parquet_files: list[tuple[str, str]] = []
 
     for file in dataset_dir.rglob("*"):
         if not file.is_file():
@@ -35,41 +50,69 @@ def main():
 
         try:
             pq.read_schema(file)
-            parquet_files.append(str(file).replace("\\", "/"))
+
+            folder_name = file.parent.name
+            match_date = folder_to_date(folder_name)
+
+            parquet_files.append(
+                (
+                    str(file).replace("\\", "/"),
+                    match_date,
+                )
+            )
+
         except Exception:
             print(f"Skipping {file}")
 
     if not parquet_files:
-        raise RuntimeError("No files found")
-
-    # for file in parquet_files:
-    #     print(f"Processing {file}...")
-    # return
+        raise RuntimeError("No parquet files found")
 
     OUTPUT_DB.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
 
+    if OUTPUT_DB.exists():
+        OUTPUT_DB.unlink()
+
     con = duckdb.connect(str(OUTPUT_DB))
 
-    file_list = ",".join(f"'{file}'" for file in parquet_files)
+    print(f"Found {len(parquet_files)} parquet files")
 
-    print(f"Found {len(parquet_files)} files")
+    con.execute("""
+        CREATE TABLE events (
+            user_id VARCHAR,
+            match_id VARCHAR,
+            map_id VARCHAR,
+            x FLOAT,
+            y FLOAT,
+            z FLOAT,
+            ts TIMESTAMP,
+            event VARCHAR,
+            match_date DATE
+        );
+    """)
 
-    con.execute(f"""
-        CREATE OR REPLACE TABLE events AS
-        SELECT
-            user_id,
-            match_id,
-            map_id,
-            x,
-            y,
-            z,
-            ts,
-            CAST(event AS VARCHAR) AS event
-        FROM read_parquet([{file_list}]);
-        """)
+    for idx, (file_path, match_date) in enumerate(
+        parquet_files,
+        start=1,
+    ):
+        # print(f"[{idx}/{len(parquet_files)}] {Path(file_path).name}")
+
+        con.execute(f"""
+            INSERT INTO events
+            SELECT
+                user_id,
+                match_id,
+                map_id,
+                x,
+                y,
+                z,
+                ts,
+                CAST(event AS VARCHAR) AS event,
+                DATE '{match_date}' AS match_date
+            FROM read_parquet('{file_path}');
+            """)
 
     con.execute("""
         CREATE INDEX idx_match
@@ -81,10 +124,23 @@ def main():
         ON events(map_id);
     """)
 
-    count = con.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+    count = con.execute("""
+        SELECT COUNT(*)
+        FROM events
+    """).fetchone()[0]
 
-    print(f"Imported {count:,} rows")
-    print(f"Created {OUTPUT_DB}")
+    print(f"\nImported {count:,} rows")
+
+    min_date, max_date = con.execute("""
+        SELECT
+            strftime(MIN(match_date), '%d-%m-%Y'),
+            strftime(MAX(match_date), '%d-%m-%Y')
+        FROM events
+    """).fetchone()
+
+    print(f"\nDate Range: {min_date} → {max_date}")
+
+    print(f"\nCreated {OUTPUT_DB}")
 
     con.close()
 
