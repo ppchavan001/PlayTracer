@@ -1,27 +1,58 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import DatasetInfoPanel from "@/components/DatasetInfoPanel";
+import { DatasetInfo } from "@/types/dataset";
+
 export default function Home()
 {
+  const [info, setInfo] =
+    useState<DatasetInfo | null>(null);
+
+  useEffect(() =>
+  {
+    async function loadInfo()
+    {
+      const response = await fetch(
+        "/api/dataset-info"
+      );
+
+      const data =
+        await response.json();
+
+      console.log(data);
+
+      setInfo(data);
+    }
+
+    loadInfo().catch(console.error);
+  }, []);
+
   return (
     <main
       style={{
         display: "grid",
-        gridTemplateColumns: "320px 1fr",
+        gridTemplateColumns:
+          "320px 1fr",
         height: "100vh",
       }}
     >
       <aside
         style={{
-          borderRight: "1px solid #333",
           padding: "1rem",
+          borderRight:
+            "1px solid #333",
         }}
       >
-        Filters
+        <h2>PlayTracer</h2>
+
+        <DatasetInfoPanel
+          info={info}
+        />
       </aside>
 
-      <section
-        style={{
-          position: "relative",
-        }}
-      >
+      <section>
         Minimap
       </section>
     </main>
