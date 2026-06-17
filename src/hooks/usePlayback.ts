@@ -1,16 +1,16 @@
 "use client";
 
 import
-    {
-        useEffect,
-        useState,
-    } from "react";
+{
+    useEffect,
+    useState,
+} from "react";
 
 import
-    {
-        MatchEvent,
-        loadMatchEvents,
-    } from "@/data/loadMatchEvents";
+{
+    MatchEvent,
+    loadMatchEvents,
+} from "@/data/loadMatchEvents";
 
 export function usePlayback(
     matchId: string
@@ -105,16 +105,51 @@ export function usePlayback(
             startTs +
             timelinePosition;
 
-        setVisibleEvents(
-            events.filter(
-                (event) =>
-                    event.ts <=
-                    currentTs &&
-                    event.event !==
-                    "Position" &&
-                    event.event !==
-                    "BotPosition"
+        const latestPositions =
+            new Map<
+                string,
+                MatchEvent
+            >();
+
+        const visibleEvents:
+            MatchEvent[] = [];
+
+        for (const event of events)
+        {
+            if (
+                event.ts >
+                currentTs
             )
+            {
+                break;
+            }
+
+            if (
+                event.event ===
+                "Position" ||
+                event.event ===
+                "BotPosition"
+            )
+            {
+                latestPositions.set(
+                    event.userId,
+                    event
+                );
+
+                continue;
+            }
+
+            visibleEvents.push(
+                event
+            );
+        }
+
+        visibleEvents.push(
+            ...latestPositions.values()
+        );
+
+        setVisibleEvents(
+            visibleEvents
         );
     }, [
         events,
