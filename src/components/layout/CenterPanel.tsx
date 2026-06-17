@@ -1,5 +1,5 @@
 import MinimapView
-    from "@/components/MinimapView";
+    from "@/components/minimap/MinimapView";
 
 import PlaybackControls
     from "@/components/PlaybackControls";
