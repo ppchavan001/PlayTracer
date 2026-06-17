@@ -32,12 +32,7 @@ function formatTimestamp(
     timestamp: string
 )
 {
-    const date =
-        new Date(timestamp);
-
-    return date
-        .toISOString()
-        .substring(14, 19);
+    return timestamp;
 }
 
 function getEventColor(

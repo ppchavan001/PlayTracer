@@ -25,16 +25,21 @@ export async function loadMatchRows(
     const result =
         await conn.query(`
       SELECT
-        user_id AS userId,
-        x,
-        y,
-        z,
-        CAST(ts AS VARCHAR) AS ts,
-        event
-      FROM telemetry.events
-      WHERE match_id='${matchId}'
-      ${where}
-      ORDER BY ts
+    user_id AS userId,
+    x,
+    y,
+    z,
+
+    epoch_ms(ts) -
+    MIN(epoch_ms(ts)) OVER ()
+        AS ts,
+
+    event
+
+    FROM telemetry.events
+    WHERE match_id='${matchId}'
+    ${where}
+    ORDER BY ts
     `);
 
     await conn.close();
