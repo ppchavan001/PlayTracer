@@ -9,6 +9,9 @@ import { MINIMAPS }
 import { worldToMinimap }
     from "@/data/mapCoordinates";
 
+import { getEventStyle }
+    from "@/data/eventVisualization";
+
 interface Props
 {
     selectedMap: string | null;
@@ -168,35 +171,7 @@ export default function MinimapView({
                                             event.z
                                         );
 
-                                    let color =
-                                        "#ffffff";
-
-                                    switch (
-                                    event.event
-                                    )
-                                    {
-                                        case "Loot":
-                                            color =
-                                                "#facc15";
-                                            break;
-
-                                        case "Kill":
-                                        case "BotKill":
-                                            color =
-                                                "#22c55e";
-                                            break;
-
-                                        case "Killed":
-                                        case "BotKilled":
-                                            color =
-                                                "#ef4444";
-                                            break;
-
-                                        case "KilledByStorm":
-                                            color =
-                                                "#3b82f6";
-                                            break;
-                                    }
+                                    const style = getEventStyle(event);
 
                                     return (
                                         <div
@@ -206,23 +181,23 @@ export default function MinimapView({
                                                     "absolute",
 
                                                 left: `${(point.x /
-                                                        1024) *
+                                                    1024) *
                                                     100
                                                     }%`,
 
                                                 top: `${(point.y /
-                                                        1024) *
+                                                    1024) *
                                                     100
                                                     }%`,
 
-                                                width: 10,
-                                                height: 10,
+                                                width: style.width,
+                                                height: style.height,
 
                                                 borderRadius:
                                                     "50%",
 
                                                 background:
-                                                    color,
+                                                    style.color,
 
                                                 border:
                                                     "1px solid rgba(255,255,255,0.5)",
@@ -230,7 +205,7 @@ export default function MinimapView({
                                                 transform:
                                                     "translate(-50%, -50%)",
 
-                                                zIndex: 50,
+                                                zIndex: style.zIndex,
                                             }}
                                         />
                                     );
