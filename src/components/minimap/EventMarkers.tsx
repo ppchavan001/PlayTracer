@@ -52,7 +52,7 @@ export function EventMarkers({
                     style,
                 }) => (
                     <div
-                        key={`${event.userId}-${event.ts}-${event.event}`}
+                        key={`${event.userId}-${event.ts}-${event.event}-${event.x}-${event.z}`}
                         style={{
                             position:
                                 "absolute",
