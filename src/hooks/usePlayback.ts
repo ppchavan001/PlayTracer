@@ -1,0 +1,187 @@
+"use client";
+
+import
+    {
+        useEffect,
+        useState,
+    } from "react";
+
+import
+    {
+        MatchEvent,
+        loadMatchEvents,
+    } from "@/data/loadMatchEvents";
+
+export function usePlayback(
+    matchId: string
+)
+{
+    const [events,
+        setEvents] =
+        useState<MatchEvent[]>([]);
+
+    const [visibleEvents,
+        setVisibleEvents] =
+        useState<MatchEvent[]>([]);
+
+    const [timelinePosition,
+        setTimelinePosition] =
+        useState(0);
+
+    const [timelineMax,
+        setTimelineMax] =
+        useState(0);
+
+    const [isPlaying,
+        setIsPlaying] =
+        useState(false);
+
+    const [playbackSpeed,
+        setPlaybackSpeed] =
+        useState(1);
+
+    const [
+        visualizationMode,
+        setVisualizationMode,
+    ] = useState("events");
+
+    useEffect(() =>
+    {
+        async function loadData()
+        {
+            setIsPlaying(false);
+            setEvents([]);
+            setVisibleEvents([]);
+            setTimelinePosition(0);
+
+            if (!matchId)
+            {
+                return;
+            }
+
+            const matchEvents =
+                await loadMatchEvents(
+                    matchId
+                );
+
+            setEvents(matchEvents);
+
+            if (
+                !matchEvents.length
+            )
+            {
+                return;
+            }
+
+            const minTs =
+                matchEvents[0].ts;
+
+            const maxTs =
+                matchEvents[
+                    matchEvents.length - 1
+                ].ts;
+
+            setTimelineMax(
+                maxTs - minTs
+            );
+        }
+
+        loadData().catch(
+            console.error
+        );
+    }, [matchId]);
+
+    useEffect(() =>
+    {
+        if (!events.length)
+        {
+            return;
+        }
+
+        const startTs =
+            events[0].ts;
+
+        const currentTs =
+            startTs +
+            timelinePosition;
+
+        setVisibleEvents(
+            events.filter(
+                (event) =>
+                    event.ts <=
+                    currentTs &&
+                    event.event !==
+                    "Position" &&
+                    event.event !==
+                    "BotPosition"
+            )
+        );
+    }, [
+        events,
+        timelinePosition,
+    ]);
+
+    useEffect(() =>
+    {
+        if (!isPlaying)
+        {
+            return;
+        }
+
+        const timer =
+            window.setInterval(() =>
+            {
+                setTimelinePosition(
+                    (current) =>
+                    {
+                        if (
+                            current >=
+                            timelineMax
+                        )
+                        {
+                            setIsPlaying(
+                                false
+                            );
+
+                            return timelineMax;
+                        }
+
+                        return Math.min(
+                            current +
+                            100 *
+                            playbackSpeed,
+                            timelineMax
+                        );
+                    }
+                );
+            }, 100);
+
+        return () =>
+            window.clearInterval(
+                timer
+            );
+    }, [
+        isPlaying,
+        playbackSpeed,
+        timelineMax,
+    ]);
+
+    return {
+        events,
+        visibleEvents,
+
+        timelinePosition,
+        timelineMax,
+
+        isPlaying,
+        setIsPlaying,
+
+        playbackSpeed,
+        setPlaybackSpeed,
+
+        visualizationMode,
+        setVisualizationMode,
+
+        setTimelinePosition,
+    };
+}
