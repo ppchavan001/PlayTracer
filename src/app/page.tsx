@@ -1,63 +1,92 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import LeftSidebar from "@/components/layout/LeftSidebar";
+import CenterPanel from "@/components/layout/CenterPanel";
+import RightSidebar from "@/components/layout/RightSidebar";
 
-import DatasetInfoPanel from "@/components/DatasetInfoPanel";
-import { DatasetInfo } from "@/types/dataset";
-import { loadDatasetInfo } from "@/data/loadDatasetInfo";
+import { useDataset } from "@/hooks/useDataset";
+import { useMatch } from "@/hooks/useMatch";
+import { usePlayback } from "@/hooks/usePlayback";
 
 export default function Home()
 {
-  const [info, setInfo] =
-    useState<DatasetInfo | null>(null);
+  const dataset = useDataset();
 
-  useEffect(() =>
-  {
-    async function init()
-    {
-      try
-      {
-        const result =
-          await loadDatasetInfo();
+  const match = useMatch(
+    dataset.filters.matchId
+  );
 
-        console.log(result);
-
-        setInfo(result);
-      } catch (error)
-      {
-        console.error(error);
-      }
-    }
-
-    init();
-  }, []);
+  const playback = usePlayback(
+    dataset.filters.matchId
+  );
 
   return (
     <main
       style={{
         display: "grid",
         gridTemplateColumns:
-          "320px 1fr",
+          "320px 1fr 320px",
         height: "100vh",
+        background: "#0b0d10",
+        color: "#fff",
       }}
     >
-      <aside
-        style={{
-          padding: "1rem",
-          borderRight:
-            "1px solid #333",
-        }}
-      >
-        <h2>PlayTracer</h2>
+      <LeftSidebar
+        info={dataset.info}
+        dates={dataset.dates}
+        matches={dataset.matches}
+        filters={dataset.filters}
+        onFiltersChange={
+          dataset.setFilters
+        }
+      />
 
-        <DatasetInfoPanel
-          info={info}
-        />
-      </aside>
+      <CenterPanel
+        selectedMap={
+          match.selectedMap
+        }
+        visualizationMode={
+          playback.visualizationMode
+        }
+        onVisualizationModeChange={
+          playback.setVisualizationMode
+        }
+        visibleEvents={
+          playback.visibleEvents
+        }
+        timelinePosition={
+          playback.timelinePosition
+        }
+        timelineMax={
+          playback.timelineMax
+        }
+        isPlaying={
+          playback.isPlaying
+        }
+        playbackSpeed={
+          playback.playbackSpeed
+        }
+        onPlayPause={() =>
+          playback.setIsPlaying(
+            !playback.isPlaying
+          )
+        }
+        onTimelineChange={
+          playback.setTimelinePosition
+        }
+        onPlaybackSpeedChange={
+          playback.setPlaybackSpeed
+        }
+      />
 
-      <section>
-        Minimap
-      </section>
+      <RightSidebar
+        matchId={
+          dataset.filters.matchId
+        }
+        matchInfo={
+          match.matchInfo
+        }
+      />
     </main>
   );
 }

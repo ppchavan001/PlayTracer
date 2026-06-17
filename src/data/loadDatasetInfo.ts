@@ -1,45 +1,11 @@
-import { getDb } from "./duckdb";
+import { getConnection } from "./duckdb";
 import { DatasetInfo } from "@/types/dataset";
-
-let initialized = false;
-
-async function initializeDb()
-{
-    const db = await getDb();
-
-    if (initialized)
-    {
-        return db;
-    }
-
-    const response = await fetch(
-        "/telemetry.db"
-    );
-
-    const buffer =
-        await response.arrayBuffer();
-
-    await db.registerFileBuffer(
-        "telemetry.db",
-        new Uint8Array(buffer)
-    );
-
-    initialized = true;
-
-    return db;
-}
 
 export async function loadDatasetInfo(): Promise<DatasetInfo>
 {
-    const db = await initializeDb();
+  const conn = await getConnection();
 
-    const conn = await db.connect();
-
-    await conn.query(`
-    ATTACH 'telemetry.db' AS telemetry
-  `);
-
-    const result = await conn.query(`
+  const result = await conn.query(`
     SELECT
       COUNT(*) AS rows,
       COUNT(DISTINCT match_id) AS matches,
@@ -49,21 +15,21 @@ export async function loadDatasetInfo(): Promise<DatasetInfo>
     FROM telemetry.events
   `);
 
-    const row =
-        result.toArray()[0] as Record<
-            string,
-            number
-        >;
+  const row =
+    result.toArray()[0] as Record<
+      string,
+      number
+    >;
 
-    await conn.close();
+  await conn.close();
 
-    return {
-        rows: row.rows,
-        matches: row.matches,
-        players: row.players,
-        humans: 245,
-        bots: 94,
-        maps: row.maps,
-        eventTypes: row.eventTypes,
-    };
+  return {
+    rows: row.rows,
+    matches: row.matches,
+    players: row.players,
+    humans: 245,
+    bots: 94,
+    maps: row.maps,
+    eventTypes: row.eventTypes,
+  };
 }
