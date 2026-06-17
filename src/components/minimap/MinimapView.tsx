@@ -93,8 +93,10 @@ export default function MinimapView({
 
             <div
                 style={{
-                    width: "100%",
-                    height: "100%",
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    aspectRatio: "1",
+
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -103,9 +105,9 @@ export default function MinimapView({
                 <div
                     style={{
                         position: "relative",
-                        width: "90%",
+                        width: "100%",
                         aspectRatio: "1",
-                        maxHeight: "90%",
+                        maxHeight: "100%",
                     }}
                 >
                     <Image
