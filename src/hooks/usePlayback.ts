@@ -148,13 +148,13 @@ export function usePlayback(
 
                         return Math.min(
                             current +
-                            100 *
+                            10 *
                             playbackSpeed,
                             timelineMax
                         );
                     }
                 );
-            }, 100);
+            }, 10);
 
         return () =>
             window.clearInterval(
