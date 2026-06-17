@@ -47,16 +47,16 @@ export default function MatchInfoPanel({
                         fontSize: 14,
                     }}
                 >
-                    <span>Match ID</span>
+                    {/* <span>Match ID</span>
                     <strong>
                         {info.matchId.slice(0, 8)}
                         ...
-                    </strong>
+                    </strong> */}
 
-                    <span>Map</span>
+                    {/* <span>Map</span>
                     <strong>
                         {info.mapId}
-                    </strong>
+                    </strong> */}
 
                     <span>Players</span>
                     <strong>
@@ -69,19 +69,19 @@ export default function MatchInfoPanel({
                     </strong>
 
 
-                    <span>Humans</span>
+                    {/* <span>Humans</span>
                     <strong>
                         {info.humans}
-                    </strong>
+                    </strong> */}
 
                     <span>Duration</span>
                     <strong>
                         {info.duration}ms
                     </strong>
-                    <span>Events</span>
+                    {/* <span>Events</span>
                     <strong>
                         {info.events}
-                    </strong>
+                    </strong> */}
                 </div>
             )}
         </div>
