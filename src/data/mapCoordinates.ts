@@ -24,6 +24,10 @@ export function worldToMinimap(
         },
     }[mapId];
 
+    if (!config)
+    {
+        throw new Error(`Unknown map: ${mapId}`);
+    }
     const u =
         (x - config.originX) /
         config.scale;
