@@ -32,7 +32,7 @@ export default function RightSidebar({
 }: Props)
 {
     const [eventType, setEventType] =
-        useState("Loot");
+        useState("All");
 
     const [rows, setRows] =
         useState<MatchEventRow[]>([]);
