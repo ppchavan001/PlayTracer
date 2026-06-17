@@ -22,7 +22,7 @@ export interface EventStyle
 
 const DEFAULT_STYLE: EventStyle =
 {
-    color: "#ffffff",
+    color: "#8a4d4d",
     width: 5,
     height: 5,
     zIndex: 50,
@@ -36,52 +36,52 @@ export function getEventStyle(
     {
         case "Position":
             return {
-                color: "#ffffff",
-                width: 7,
-                height: 7,
+                color: "#c3ff00",
+                width: 10,
+                height: 10,
                 zIndex: 40,
             };
 
         case "BotPosition":
             return {
                 color: "#94a3b8",
-                width: 5,
-                height: 5,
+                width: 10,
+                height: 10,
                 zIndex: 40,
             };
 
         case "Loot":
             return {
-                color: "#facc15",
-                width: 6,
-                height: 6,
-                zIndex: 50,
+                color: "#0c0c0c",
+                width: 10,
+                height: 10,
+                zIndex: 10,
             };
 
         case "Kill":
         case "BotKill":
             return {
                 color: "#22c55e",
-                width: 8,
-                height: 8,
-                zIndex: 60,
+                width: 10,
+                height: 10,
+                zIndex: 20,
             };
 
         case "Killed":
         case "BotKilled":
             return {
                 color: "#ef4444",
-                width: 8,
-                height: 8,
-                zIndex: 60,
+                width: 10,
+                height: 10,
+                zIndex: 30,
             };
 
         case "KilledByStorm":
             return {
                 color: "#3b82f6",
-                width: 8,
-                height: 8,
-                zIndex: 60,
+                width: 10,
+                height: 10,
+                zIndex: 40,
             };
 
         default:
