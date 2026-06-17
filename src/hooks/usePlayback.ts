@@ -38,7 +38,7 @@ export function usePlayback(
 
     const [playbackSpeed,
         setPlaybackSpeed] =
-        useState(1);
+        useState(0.01);
 
     const [
         visualizationMode,
