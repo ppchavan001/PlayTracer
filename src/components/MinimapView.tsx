@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import Image from "next/image";
 
 import { MatchEvent }
@@ -9,8 +13,11 @@ import { MINIMAPS }
 import { worldToMinimap }
     from "@/data/mapCoordinates";
 
-import { getEventStyle }
-    from "@/data/eventVisualization";
+import
+    {
+        EVENT_TYPES,
+        getEventStyle,
+    } from "@/data/eventVisualization";
 
 interface Props
 {
@@ -32,6 +39,9 @@ export default function MinimapView({
     visibleEvents,
 }: Props)
 {
+    const [showLegend, setShowLegend] =
+        useState(false);
+
     return (
         <div
             style={{
@@ -131,6 +141,145 @@ export default function MinimapView({
                         </span>
                     </div>
 
+                    <button
+                        onClick={() =>
+                            setShowLegend(
+                                !showLegend
+                            )
+                        }
+                        style={{
+                            position: "absolute",
+                            left: 16,
+                            bottom: 16,
+
+                            zIndex: 100,
+
+                            padding:
+                                "6px 12px",
+
+                            border: "none",
+
+                            borderRadius:
+                                999,
+
+                            background:
+                                "rgba(30,35,45,0.8)",
+
+                            color: "#fff",
+
+                            fontSize: 12,
+
+                            fontWeight: 600,
+
+                            cursor: "pointer",
+                        }}
+                    >
+                        Legend
+                    </button>
+
+                    {showLegend && (
+                        <div
+                            style={{
+                                position:
+                                    "absolute",
+
+                                left: 16,
+                                bottom: 56,
+
+                                zIndex: 100,
+
+                                minWidth: 180,
+
+                                padding: 12,
+
+                                borderRadius:
+                                    12,
+
+                                background:
+                                    "rgba(21,25,34,0.95)",
+
+                                border:
+                                    "1px solid #2b3444",
+
+                                display:
+                                    "flex",
+
+                                flexDirection:
+                                    "column",
+
+                                gap: 8,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    opacity: 0.8,
+                                }}
+                            >
+                                Map Legend
+                            </div>
+
+                            {EVENT_TYPES.map(
+                                (
+                                    eventType
+                                ) =>
+                                {
+                                    const style =
+                                        getEventStyle(
+                                            eventType
+                                        );
+
+                                    return (
+                                        <div
+                                            key={
+                                                eventType
+                                            }
+                                            style={{
+                                                display:
+                                                    "flex",
+
+                                                alignItems:
+                                                    "center",
+
+                                                gap: 8,
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width:
+                                                        style.width,
+
+                                                    height:
+                                                        style.height,
+
+                                                    borderRadius:
+                                                        "50%",
+
+                                                    background:
+                                                        style.color,
+
+                                                    flexShrink:
+                                                        0,
+                                                }}
+                                            />
+
+                                            <span
+                                                style={{
+                                                    fontSize: 12,
+                                                }}
+                                            >
+                                                {
+                                                    eventType
+                                                }
+                                            </span>
+                                        </div>
+                                    );
+                                }
+                            )}
+                        </div>
+                    )}
+
                     <div
                         style={{
                             width: "100%",
@@ -162,7 +311,9 @@ export default function MinimapView({
                             />
 
                             {visibleEvents.map(
-                                (event, index) =>
+                                (
+                                    event
+                                ) =>
                                 {
                                     const point =
                                         worldToMinimap(
@@ -171,27 +322,31 @@ export default function MinimapView({
                                             event.z
                                         );
 
-                                    const style = getEventStyle(event);
+                                    const style =
+                                        getEventStyle(
+                                            event.event
+                                        );
 
                                     return (
                                         <div
-                                            key={index}
+                                            key={`${event.userId}-${event.ts}-${event.event}`}
                                             style={{
                                                 position:
                                                     "absolute",
 
                                                 left: `${(point.x /
                                                     1024) *
-                                                    100
-                                                    }%`,
+                                                    100}%`,
 
                                                 top: `${(point.y /
                                                     1024) *
-                                                    100
-                                                    }%`,
+                                                    100}%`,
 
-                                                width: style.width,
-                                                height: style.height,
+                                                width:
+                                                    style.width,
+
+                                                height:
+                                                    style.height,
 
                                                 borderRadius:
                                                     "50%",
@@ -205,7 +360,8 @@ export default function MinimapView({
                                                 transform:
                                                     "translate(-50%, -50%)",
 
-                                                zIndex: style.zIndex,
+                                                zIndex:
+                                                    style.zIndex,
                                             }}
                                         />
                                     );

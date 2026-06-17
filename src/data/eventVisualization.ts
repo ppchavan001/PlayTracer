@@ -1,6 +1,17 @@
 import { MatchEvent }
     from "@/data/loadMatchEvents";
 
+export const EVENT_TYPES = [
+    "Position",
+    "BotPosition",
+    "Loot",
+    "Kill",
+    "BotKill",
+    "Killed",
+    "BotKilled",
+    "KilledByStorm",
+] as const;
+
 export interface EventStyle
 {
     color: string;
@@ -18,10 +29,10 @@ const DEFAULT_STYLE: EventStyle =
 };
 
 export function getEventStyle(
-    event: MatchEvent
+    event: string,
 ): EventStyle
 {
-    switch (event.event)
+    switch (event)
     {
         case "Position":
             return {
