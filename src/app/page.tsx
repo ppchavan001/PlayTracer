@@ -80,6 +80,9 @@ export default function Home()
       />
 
       <RightSidebar
+        matchId={
+          dataset.filters.matchId
+        }
         matchInfo={
           match.matchInfo
         }
