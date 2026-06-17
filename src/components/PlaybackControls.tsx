@@ -104,6 +104,14 @@ export default function PlaybackControls({
                     fontWeight: 600,
                 }}
             >
+                <option value={0.01}>
+                    0.01x
+                </option>
+
+                <option value={0.1}>
+                    0.1x
+                </option>
+
                 <option value={0.25}>
                     0.25x
                 </option>
@@ -147,13 +155,10 @@ export default function PlaybackControls({
             />
 
             <div>
-                {formatTime(
-                    timelinePosition
-                )}
+                {timelinePosition
+                }
                 {" / "}
-                {formatTime(
-                    timelineMax
-                )}
+                {timelineMax}
             </div>
 
             <div
