@@ -76,7 +76,7 @@ export default function MatchInfoPanel({
 
                     <span>Duration</span>
                     <strong>
-                        {info.duration}ms
+                        {info.duration}
                     </strong>
                     {/* <span>Events</span>
                     <strong>

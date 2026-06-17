@@ -157,7 +157,7 @@ export default function PlaybackControls({
             <div>
                 {timelinePosition.toFixed(0)}
                 {" / "}
-                {timelineMax.toFixed(0)} ms
+                {timelineMax.toFixed(0)}
             </div>
 
             <div
