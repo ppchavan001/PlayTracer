@@ -1,5 +1,8 @@
-import { getConnection } from "./duckdb";
-import { MatchEventRow } from "@/types/matchEventRow";
+import { getConnection }
+    from "./duckdb";
+
+import { MatchEventRow }
+    from "@/types/matchEventRow";
 
 export async function loadMatchRows(
     matchId: string,
@@ -11,26 +14,28 @@ export async function loadMatchRows(
         return [];
     }
 
-    const conn = await getConnection();
+    const conn =
+        await getConnection();
 
     const where =
         eventType === "All"
             ? ""
             : `AND event='${eventType}'`;
 
-    const result = await conn.query(`
-    SELECT
-      user_id AS userId,
-      x,
-      y,
-      z,
-      CAST(ts AS VARCHAR) AS ts,
-      event
-    FROM telemetry.events
-    WHERE match_id='${matchId}'
-    ${where}
-    ORDER BY ts
-  `);
+    const result =
+        await conn.query(`
+      SELECT
+        user_id AS userId,
+        x,
+        y,
+        z,
+        CAST(ts AS VARCHAR) AS ts,
+        event
+      FROM telemetry.events
+      WHERE match_id='${matchId}'
+      ${where}
+      ORDER BY ts
+    `);
 
     await conn.close();
 

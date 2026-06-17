@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import { MatchEventRow }
     from "@/types/matchEventRow";
 
@@ -24,156 +28,371 @@ const EVENT_TYPES = [
     "KilledByStorm",
 ];
 
+function formatTimestamp(
+    timestamp: string
+)
+{
+    const date =
+        new Date(timestamp);
+
+    return date
+        .toISOString()
+        .substring(14, 19);
+}
+
+function getEventColor(
+    event: string
+)
+{
+    switch (event)
+    {
+        case "Loot":
+            return "#facc15";
+
+        case "Kill":
+        case "BotKill":
+            return "#22c55e";
+
+        case "Killed":
+        case "BotKilled":
+            return "#ef4444";
+
+        case "KilledByStorm":
+            return "#3b82f6";
+
+        default:
+            return "#ffffff";
+    }
+}
+
 export default function MatchEventsPanel({
     rows,
     eventType,
     onEventTypeChange,
 }: Props)
 {
+    const [
+        selectedEvent,
+        setSelectedEvent,
+    ] =
+        useState<MatchEventRow | null>(
+            null
+        );
+
     return (
         <div
             style={{
                 marginTop: "1rem",
+
+                flex: 1,
+
+                minHeight: 0,
+
                 padding: "1rem",
+
                 borderRadius: 12,
-                border: "1px solid #222",
-                background: "#151922",
+
+                border:
+                    "1px solid #222",
+
+                background:
+                    "#151922",
 
                 display: "flex",
                 flexDirection: "column",
 
-                height: "calc(100vh - 240px)",
+                overflow: "hidden",
             }}
         >
+            <h3
+                style={{
+                    marginTop: 0,
+                    marginBottom:
+                        "1rem",
+                }}
+            >
+                Match Events
+            </h3>
+
             <div
                 style={{
                     display: "flex",
+
                     justifyContent:
                         "space-between",
-                    alignItems: "center",
-                    marginBottom: "1rem",
+
+                    alignItems:
+                        "center",
+
+                    marginBottom:
+                        "1rem",
                 }}
             >
-                <h3
+                <select
+                    value={eventType}
+                    onChange={(e) =>
+                        onEventTypeChange(
+                            e.target.value
+                        )
+                    }
                     style={{
-                        margin: 0,
+                        padding:
+                            "6px 12px",
+
+                        borderRadius:
+                            999,
+
+                        border: "none",
+
+                        background:
+                            "rgba(30,35,45,0.8)",
+
+                        color: "#fff",
+
+                        fontSize: 12,
+
+                        fontWeight: 600,
                     }}
                 >
-                    Match Events
-                </h3>
+                    {EVENT_TYPES.map(
+                        (
+                            event
+                        ) => (
+                            <option
+                                key={event}
+                                value={
+                                    event
+                                }
+                            >
+                                {event}
+                            </option>
+                        )
+                    )}
+                </select>
 
                 <div
                     style={{
-                        display: "flex",
-                        gap: "0.5rem",
-                        alignItems: "center",
+                        padding:
+                            "6px 10px",
+
+                        borderRadius:
+                            999,
+
+                        background:
+                            "#222834",
+
+                        fontSize: 12,
+
+                        fontWeight: 600,
                     }}
                 >
-                    <span
-                        style={{
-                            fontSize: 12,
-                            opacity: 0.7,
-                        }}
-                    >
-                        {rows.length}
-                    </span>
-
-                    <select
-                        value={eventType}
-                        onChange={(e) =>
-                            onEventTypeChange(
-                                e.target.value
-                            )
-                        }
-                    >
-                        {EVENT_TYPES.map(
-                            (event) => (
-                                <option
-                                    key={event}
-                                    value={event}
-                                >
-                                    {event}
-                                </option>
-                            )
-                        )}
-                    </select>
+                    {rows.length.toLocaleString()} rows
                 </div>
             </div>
 
             <div
                 style={{
-                    overflow: "auto",
                     flex: 1,
-                    fontSize: 12,
+
+                    minHeight: 0,
+
+                    overflowY:
+                        "auto",
+
+                    border:
+                        "1px solid #222",
+
+                    borderRadius: 8,
                 }}
             >
-                <table
+                {rows.map(
+                    (
+                        row,
+                        index
+                    ) => (
+                        <button
+                            key={index}
+                            onClick={() =>
+                                setSelectedEvent(
+                                    row
+                                )
+                            }
+                            style={{
+                                width:
+                                    "100%",
+
+                                display:
+                                    "flex",
+
+                                justifyContent:
+                                    "space-between",
+
+                                alignItems:
+                                    "center",
+
+                                padding:
+                                    "0.75rem",
+
+                                border:
+                                    "none",
+
+                                borderBottom:
+                                    "1px solid #222",
+
+                                background:
+                                    selectedEvent ===
+                                        row
+                                        ? "#222834"
+                                        : "transparent",
+
+                                color:
+                                    "#fff",
+
+                                cursor:
+                                    "pointer",
+                            }}
+                        >
+                            <span>
+                                {formatTimestamp(
+                                    row.ts
+                                )}
+                            </span>
+
+                            <span
+                                style={{
+                                    color:
+                                        getEventColor(
+                                            row.event
+                                        ),
+
+                                    fontWeight: 600,
+                                }}
+                            >
+                                {
+                                    row.event
+                                }
+                            </span>
+                        </button>
+                    )
+                )}
+            </div>
+
+            <div
+                style={{
+                    marginTop:
+                        "1rem",
+
+                    paddingTop:
+                        "1rem",
+
+                    borderTop:
+                        "1px solid #222",
+
+                    minHeight: 180,
+                }}
+            >
+                <h4
                     style={{
-                        width: "100%",
-                        borderCollapse:
-                            "collapse",
+                        marginTop: 0,
                     }}
                 >
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>X</th>
-                            <th>Y</th>
-                            <th>Z</th>
-                            <th>TS</th>
-                            <th>Event</th>
-                        </tr>
-                    </thead>
+                    Selected Event
+                </h4>
 
-                    <tbody>
-                        {rows.map(
-                            (row, index) => (
-                                <tr
-                                    key={index}
-                                >
-                                    <td
-                                        style={{
-                                            maxWidth:
-                                                140,
-                                            overflow:
-                                                "hidden",
-                                            textOverflow:
-                                                "ellipsis",
-                                        }}
-                                    >
-                                        {row.userId}
-                                    </td>
+                {!selectedEvent && (
+                    <div
+                        style={{
+                            opacity:
+                                0.6,
+                        }}
+                    >
+                        Select an event
+                    </div>
+                )}
 
-                                    <td>
-                                        {row.x.toFixed(
-                                            2
-                                        )}
-                                    </td>
+                {selectedEvent && (
+                    <div
+                        style={{
+                            fontSize: 13,
 
-                                    <td>
-                                        {row.y.toFixed(
-                                            2
-                                        )}
-                                    </td>
+                            display:
+                                "grid",
 
-                                    <td>
-                                        {row.z.toFixed(
-                                            2
-                                        )}
-                                    </td>
+                            gap:
+                                "0.5rem",
+                        }}
+                    >
+                        <div>
+                            <strong>
+                                User ID
+                            </strong>
 
-                                    <td>
-                                        {row.ts}
-                                    </td>
+                            <div
+                                style={{
+                                    wordBreak:
+                                        "break-all",
 
-                                    <td>
-                                        {row.event}
-                                    </td>
-                                </tr>
-                            )
-                        )}
-                    </tbody>
-                </table>
+                                    opacity:
+                                        0.85,
+                                }}
+                            >
+                                {
+                                    selectedEvent.userId
+                                }
+                            </div>
+                        </div>
+
+                        <div>
+                            <strong>
+                                X
+                            </strong>
+                            :{" "}
+                            {selectedEvent.x.toFixed(
+                                2
+                            )}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Y
+                            </strong>
+                            :{" "}
+                            {selectedEvent.y.toFixed(
+                                2
+                            )}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Z
+                            </strong>
+                            :{" "}
+                            {selectedEvent.z.toFixed(
+                                2
+                            )}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Event
+                            </strong>
+                            :{" "}
+                            {
+                                selectedEvent.event
+                            }
+                        </div>
+
+                        <div>
+                            <strong>
+                                Timestamp
+                            </strong>
+                            :{" "}
+                            {
+                                selectedEvent.ts
+                            }
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
