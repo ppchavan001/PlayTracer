@@ -71,6 +71,7 @@ export default function CenterPanel({
                 background: "#11151b",
                 padding: "1rem",
                 gap: "1rem",
+                overflow: "hidden",
             }}
         >
             <MinimapView
