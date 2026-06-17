@@ -1,8 +1,8 @@
 import
-    {
-        EVENT_TYPES,
-        getEventStyle,
-    } from "@/data/eventVisualization";
+{
+    EVENT_TYPES,
+    getEventStyle,
+} from "@/data/eventVisualization";
 
 export function MinimapLegend()
 {
@@ -10,7 +10,7 @@ export function MinimapLegend()
         <div
             style={{
                 position: "absolute",
-                left: 16,
+                right: 16,
                 bottom: 56,
                 zIndex: 100,
                 minWidth: 180,

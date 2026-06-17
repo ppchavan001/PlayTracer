@@ -70,7 +70,7 @@ export default function MinimapView({
                 }
                 style={{
                     position: "absolute",
-                    left: 16,
+                    right: 16,
                     bottom: 16,
                     zIndex: 100,
                     padding: "6px 12px",
