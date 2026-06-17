@@ -5,23 +5,22 @@ PlayTracer is a web-based telemetry visualization tool for exploring player beha
 
 ## Features
 
-- [ ] Direct Parquet file loading using DuckDB-WASM
-- [ ] Interactive minimap visualization for all supported maps
-- [ ] Human and bot player differentiation
-- [ ] Match playback with timeline controls
-- [ ] Kill, death, loot, and storm event visualization
+- [x] Direct Parquet file loading using DuckDB-WASM
+- [x] Interactive minimap visualization for all supported maps
+- [x] Human and bot player differentiation
+- [x] Match playback with timeline controls
+- [x] Kill, death, loot, and storm event visualization
+- [x] Filtering by date, map, and match
 - [ ] Traffic, kill, and death heatmaps
-- [ ] Filtering by date, map, and match
 
 ## Tech Stack
 
 | Technology  | Purpose                                |
 | ----------- | -------------------------------------- |
 | React       | User interface                         |
+| Next.js     | Development and build tooling          |
 | TypeScript  | Type safety and maintainability        |
-| Vite        | Development and build tooling          |
 | DuckDB-WASM | Direct Parquet querying in the browser |
-| PixiJS      | High-performance minimap rendering     |
 | Vercel      | Deployment and hosting                 |
 
 ## Installation
@@ -49,13 +48,13 @@ npm run preview
     ```
     pip install pandas pyarrow duckdb
     ```
-- Run the "src/tools/build-db.py" script to generate the telemetry database.
+- Run the script to generate the telemetry database. Stored in public/telemetry.db
     ```
-    python src/tools/build-db.py
+    python scripts/build-db.py
     ```
-- Verify generated dataset using "src/tools/verify_db.py"
+- Verify generated dataset using
     ```
-    python src/tools/verify_db.py
+    python scripts/verify_db.py
     ```
 
 
@@ -77,14 +76,11 @@ The application is deployed on Vercel.
 
 Deployment URL:
 
-```text
-<DEPLOYMENT_URL>
-```
+[https://play-tracer.vercel.app/](https://play-tracer.vercel.app/)
 
 ## Assumptions
 
 * All telemetry files are valid Apache Parquet files.
-* Match timelines are reconstructed using the ts field.
 * Human players are identified by UUID user IDs.
 * Bots are identified by numeric user IDs.
 * Minimap images are fixed at 1024x1024 resolution.
@@ -94,3 +90,8 @@ Deployment URL:
 * Additional telemetry sources
 * Multi-match comparison
 * Real-time telemetry support
+* Path visualization
+* Match comparison
+* Player filtering
+* Event search
+* Performance optimizations for large datasets
