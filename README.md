@@ -8,7 +8,11 @@ The tool converts raw gameplay telemetry into interactive minimap visualizations
 
 ## Live Demo
 
-**Hosted Application:** https://play-tracer.vercel.app/
+**Hosted Application :** https://play-tracer.vercel.app/
+
+**Repository :** https://github.com/ppchavan001/playtracer
+
+**YouTube :** https://youtu.be/C2XeDV4sFyg 
 
 ---
 
@@ -40,7 +44,7 @@ The tool converts raw gameplay telemetry into interactive minimap visualizations
 
 ## Dataset Overview
 
-Dataset: **Player Event Data**
+Embedded Dataset: **Player Event Data**
 
 | Metric     | Value   |
 | ---------- | ------- |
