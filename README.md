@@ -2,51 +2,55 @@
 
 PlayTracer is a telemetry visualization tool for exploring player behavior in multiplayer matches.
 
-The application converts raw gameplay telemetry into interactive minimap visualizations, helping designers and analysts understand:
-
-* Player movement patterns
-* Looting behavior
-* Combat hotspots
-* Area eliminations
-* Human vs Bot activity
-* Map utilization
+The tool converts raw gameplay telemetry into interactive minimap visualizations, allowing designers and analysts to understand player movement, combat activity, looting patterns, area eliminations, and overall map utilization.
 
 ---
 
-## Demo
+## Live Demo
 
-Deployment: https://play-tracer.vercel.app/
+**Hosted Application:** https://play-tracer.vercel.app/
 
 ---
-
-# For End Users
-
-## Getting Started
-
-1. Select a date.
-2. Select a match.
-3. Explore player activity on the minimap.
-4. Use playback controls to replay match events over time.
 
 ## Features
 
 ### Match Exploration
 
 * Interactive minimap visualization
-* Timeline playback controls
-* Human and bot differentiation
-* Event filtering
+* Match playback with timeline controls
+* Human and bot player differentiation
+* Match filtering by date and match ID
+* Event visualization:
 
-### Supported Events
+  * Player Position
+  * Bot Position
+  * Loot
+  * Kill
+  * Death
+  * Area Death
 
-* Player Position
-* Bot Position
-* Loot
-* Kill
-* Death
-* Area Death
+### Dataset Analysis
 
-### Maps
+* Dataset statistics overview
+* Match metadata inspection
+* Event counts and player counts
+* Match duration calculation
+
+---
+
+## Dataset Overview
+
+Dataset: **Player Event Data**
+
+| Metric     | Value   |
+| ---------- | ------- |
+| Days       | 5       |
+| Matches    | 796     |
+| Players    | 339     |
+| Event Rows | ~89,000 |
+| Maps       | 3       |
+
+Supported maps:
 
 * AmbroseValley
 * GrandRift
@@ -54,106 +58,20 @@ Deployment: https://play-tracer.vercel.app/
 
 ---
 
-# Architecture
+## Technology Stack
 
-## Data Flow
-
-```text
-Telemetry Files
-       │
-       ▼
-Database Build Script
-       │
-       ▼
-telemetry.db
-       │
-       ▼
-DuckDB Queries
-       │
-       ▼
-React Hooks
-       │
-       ▼
-UI Components
-```
-
-The application separates:
-
-```text
-Data Layer
-    ↓
-State Layer
-    ↓
-UI Layer
-    ↓
-Page Composition
-```
-
-This keeps database access, business logic, and presentation independent.
+| Technology | Purpose                          |
+| ---------- | -------------------------------- |
+| Next.js    | Application framework            |
+| React      | User interface                   |
+| TypeScript | Type safety                      |
+| DuckDB     | Telemetry querying and analytics |
+| Python     | Dataset preparation              |
+| Vercel     | Hosting and deployment           |
 
 ---
 
-# Design Decisions
-
-## Prebuilt Database
-
-### Decision
-
-Convert telemetry files into a single DuckDB database before running the application.
-
-### Why
-
-Querying hundreds of telemetry files directly would increase:
-
-* Startup time
-* Browser memory usage
-* Query complexity
-
-A prebuilt database provides a simpler runtime experience.
-
-### Trade-offs
-
-**Pros**
-
-* Faster queries
-* Simpler deployment
-* Easier filtering and aggregation
-
-**Cons**
-
-* Database must be regenerated when new telemetry arrives
-
----
-
-## In-Memory Playback
-
-### Decision
-
-Load all match events once and perform playback entirely in memory.
-
-### Why
-
-Typical match sizes are small enough to fit comfortably in memory.
-
-Avoiding repeated database queries results in smoother playback.
-
-### Trade-offs
-
-**Pros**
-
-* Responsive timeline controls
-* Smooth playback
-* Simple implementation
-
-**Cons**
-
-* Memory usage grows with match size
-
-For the current dataset, the trade-off is acceptable.
-
----
-
-# Project Structure
+## Project Structure
 
 ```text
 PlayTracer/
@@ -172,55 +90,77 @@ PlayTracer/
 │   ├── data/
 │   └── types/
 │
-├── package.json
-└── README.md
+├── README.md
+├── ARCHITECTURE.md
+└── INSIGHTS.md
 ```
 
-## Key Folders
+### Important Directories
 
-| Folder          | Purpose                             |
-| --------------- | ----------------------------------- |
-| public/         | Database and static assets          |
-| scripts/        | Dataset generation and validation   |
-| src/data/       | Queries, loaders, and map utilities |
-| src/hooks/      | State management and playback logic |
-| src/components/ | Reusable UI components              |
-| src/app/        | Application entry points            |
-| src/types/      | Shared TypeScript types             |
+| Directory         | Purpose                                        |
+| ----------------- | ---------------------------------------------- |
+| `public/`         | Static assets and generated telemetry database |
+| `scripts/`        | Dataset generation and validation utilities    |
+| `src/data/`       | Database queries and data access layer         |
+| `src/hooks/`      | State management and playback logic            |
+| `src/components/` | Reusable UI components                         |
+| `src/app/`        | Application pages and layout                   |
+| `src/types/`      | Shared TypeScript types                        |
 
 ---
 
-# Local Development
+## Getting Started
 
-## Install
+### Prerequisites
+
+* Node.js 20+
+* Python 3.10+
+* npm
+
+### Installation
 
 ```bash
 npm install
 ```
 
-## Run
+### Run Development Server
 
 ```bash
 npm run dev
 ```
 
-## Production Build
+Open:
+
+```text
+http://localhost:3000
+```
+
+### Production Build
 
 ```bash
 npm run build
+npm start
 ```
 
 ---
 
-# Dataset Generation
+## Environment Variables
 
-## Requirements
+No environment variables are currently required.
+
+---
+
+## Dataset Setup
+
+### Install Python Dependencies
 
 ```bash
 pip install pandas pyarrow duckdb
 ```
 
-## Build Database
+### Generate Database
+
+Build a DuckDB database from the telemetry dataset:
 
 ```bash
 python scripts/build-db.py
@@ -232,7 +172,7 @@ Output:
 public/telemetry.db
 ```
 
-## Verify Database
+### Verify Database
 
 ```bash
 python scripts/verify-db.py
@@ -240,7 +180,19 @@ python scripts/verify-db.py
 
 ---
 
-# Telemetry File Format
+## Expected Dataset Layout
+
+```text
+dataset/
+├── February_10/
+├── February_11/
+├── February_12/
+├── February_13/
+├── February_14/
+└── README.md
+```
+
+All telemetry files are Apache Parquet files.
 
 Each file represents:
 
@@ -259,30 +211,40 @@ Filename format:
 Examples:
 
 ```text
-UUID      → Human Player
-NumericID → Bot
+f4e072fa-b7af-4761-b567-1d95b7ad0108_b71aaad8-aa62-4b3a-8534-927d4de18f22.nakama-0
+1440_d7e50fad-fb7a-4ed4-932f-e4ca9ff0c97b.nakama-0
 ```
 
-A match with 10 humans and 40 bots produces 50 telemetry files.
+Human players use UUID identifiers while bots use numeric identifiers.
 
 ---
 
-# Technology Stack
+## How to Use
 
-| Technology | Purpose               |
-| ---------- | --------------------- |
-| Next.js    | Application framework |
-| React      | UI rendering          |
-| TypeScript | Type safety           |
-| DuckDB     | Analytics database    |
-| Vercel     | Deployment            |
+1. Open the application.
+2. Select a date from the dataset.
+3. Select a match.
+4. Explore player activity on the minimap.
+5. Use playback controls to replay events over time.
+6. Toggle event visibility to inspect specific gameplay behaviors.
 
 ---
 
-# Future Improvements
+## Documentation
 
-* Heatmap visualizations
-* Player path rendering
+Additional project documentation:
+
+* **ARCHITECTURE.md** – System design, data flow, coordinate mapping approach, assumptions, and tradeoffs.
+* **INSIGHTS.md** – Gameplay observations and findings discovered using PlayTracer.
+
+---
+
+## Future Improvements
+
+* Kill heatmaps
+* Death heatmaps
+* Traffic heatmaps
+* Player path visualization
 * Multi-match comparison
 * Event search
 * Real-time telemetry support
@@ -292,6 +254,6 @@ A match with 10 humans and 40 bots produces 50 telemetry files.
 
 ## Author
 
-Pratik Chavan
+**Pratik Chavan**
 <br> ppchavan001@gmail.com
-<br> Software Engineer | C++ | Unreal Engine | Full Stack Development
+<br> Software Engineer C++, Unreal Engine, Full-Stack Development
